@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "source": "Cortellis",
+    "processed_date": "2025-10-06 09:16:55",
+    "version": "1.0"
+  },
+  "statistics": {
+    "total_patents": 77767,
+    "total_drugs": 13023,
+    "total_relationships": 33650
+  },
+  "files": {
+    "patents": "patents_processed.json",
+    "drugs": "drugs_processed.json",
+    "relationships": "relationships.json",
+    "patent_stats": "patent_statistics.json",
+    "drug_stats": "drug_statistics.json"
+  }
+}

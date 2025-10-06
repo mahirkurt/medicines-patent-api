@@ -1,0 +1,4 @@
+{
+  "patents": "processed_data/patents_processed.json",
+  "drugs": "processed_data/drugs_processed.json"
+}
