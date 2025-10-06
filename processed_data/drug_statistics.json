@@ -1,0 +1,51 @@
+{
+  "total_drugs": 13023,
+  "launched_drugs": 0,
+  "phase_distribution": {
+    "Unknown": 13023
+  },
+  "indication_distribution": {
+    "Cancer": 588,
+    "Advanced solid tumor": 543,
+    "Solid tumor": 428,
+    "Coronavirus disease 19 infection": 392,
+    "Metastatic non small cell lung cancer": 381,
+    "Metastatic breast cancer": 351,
+    "Non-small-cell lung cancer": 346,
+    "Metastatic colorectal cancer": 298,
+    "Non-insulin dependent diabetes": 272,
+    "Breast tumor": 261,
+    "Ovary tumor": 259,
+    "Rheumatoid arthritis": 242,
+    "Squamous cell carcinoma": 229,
+    "Pancreas tumor": 227,
+    "Hypertension": 224,
+    "Glioblastoma": 216,
+    "Triple-negative breast cancer": 215,
+    "Hepatitis B virus infection": 206,
+    "Pain": 205,
+    "Multiple myeloma": 200
+  },
+  "company_distribution": {
+    "Pfizer Inc": 191,
+    "GSK plc": 160,
+    "Novartis AG": 154,
+    "Sanofi SA": 146,
+    "Takeda Pharmaceutical Co Ltd": 133,
+    "AbbVie Inc": 133,
+    "Merck & Co Inc": 112,
+    "AstraZeneca plc": 97,
+    "Bristol Myers Squibb Co": 95,
+    "Roche Holding Ltd": 85,
+    "Eli Lilly & Co": 71,
+    "Bayer AG": 71,
+    "Daiichi Sankyo Co Ltd": 69,
+    "Astellas Pharma Inc": 64,
+    "Johnson & Johnson": 62,
+    "Boehringer Ingelheim International GmbH": 59,
+    "Seqirus Inc": 58,
+    "Chugai Pharmaceutical Co Ltd": 57,
+    "Bausch Health Companies Inc": 57,
+    "Eisai Co Ltd": 55
+  }
+}

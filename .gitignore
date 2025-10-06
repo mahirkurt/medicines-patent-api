@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.log
+cache/
+__pycache__/
+*.pyc
+*.xlsx
+processed_data/patents_processed.json
+processed_data/drugs_processed.json

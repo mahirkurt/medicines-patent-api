@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patent Database Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        .search-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .search-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        .search-form {
+            display: none;
+        }
+        .search-form.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .result-item {
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+        .result-title {
+            color: #333;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .result-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .result-abstract {
+            color: #555;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            min-width: 40px;
+            text-align: center;
+        }
+        .page-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Patent Database Explorer</h1>
+            <div class="subtitle">Comprehensive Patent & Drug Intelligence System</div>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-number">-</div>
+                    <div class="stat-label">Total Patents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">-</div>
+                    <div class="stat-label">Total Drugs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">-</div>
+                    <div class="stat-label">Relationships</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">-</div>
+                    <div class="stat-label">Data Source</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="search-section">
+            <div class="search-tabs">
+                <div class="tab active" onclick="switchTab('patents')">Patent Search</div>
+                <div class="tab" onclick="switchTab('drugs')">Drug Search</div>
+                <div class="tab" onclick="switchTab('analysis')">Analysis</div>
+            </div>
+
+            <!-- Patent Search Form -->
+            <div id="patents-form" class="search-form active">
+                <div class="form-group">
+                    <label>Search Query</label>
+                    <input type="text" id="patent-query" placeholder="Enter patent number, drug name, or keyword...">
+                </div>
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label>Classification</label>
+                        <input type="text" id="patent-classification" placeholder="e.g., Oncologic">
+                    </div>
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" id="patent-company" placeholder="e.g., Pfizer">
+                    </div>
+                    <div class="form-group">
+                        <label>Drug</label>
+                        <input type="text" id="patent-drug" placeholder="e.g., Aspirin">
+                    </div>
+                </div>
+                <button class="btn" onclick="searchPatents()">Search Patents</button>
+            </div>
+
+            <!-- Drug Search Form -->
+            <div id="drugs-form" class="search-form">
+                <div class="form-group">
+                    <label>Search Query</label>
+                    <input type="text" id="drug-query" placeholder="Enter drug name or indication...">
+                </div>
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label>Phase</label>
+                        <select id="drug-phase">
+                            <option value="">All Phases</option>
+                            <option value="Launched">Launched</option>
+                            <option value="Phase 3">Phase 3</option>
+                            <option value="Phase 2">Phase 2</option>
+                            <option value="Phase 1">Phase 1</option>
+                            <option value="Preclinical">Preclinical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" id="drug-company" placeholder="e.g., Novartis">
+                    </div>
+                    <div class="form-group">
+                        <label>Indication</label>
+                        <input type="text" id="drug-indication" placeholder="e.g., Cancer">
+                    </div>
+                </div>
+                <button class="btn" onclick="searchDrugs()">Search Drugs</button>
+            </div>
+
+            <!-- Analysis Form -->
+            <div id="analysis-form" class="search-form">
+                <div class="form-group">
+                    <label>Analysis Type</label>
+                    <select id="analysis-type" onchange="updateAnalysisForm()">
+                        <option value="patent-landscape">Patent Landscape</option>
+                        <option value="drug-pipeline">Drug Pipeline</option>
+                        <option value="competitive">Competitive Analysis</option>
+                        <option value="expiry-timeline">Expiry Timeline</option>
+                    </select>
+                </div>
+                <div id="analysis-params">
+                    <div class="form-group">
+                        <label>Year (for Patent Landscape)</label>
+                        <input type="text" id="analysis-year" placeholder="e.g., 2024">
+                    </div>
+                </div>
+                <button class="btn" onclick="runAnalysis()">Run Analysis</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <h2>Results</h2>
+            <div id="results">
+                <div class="loading">
+                    <p>Ready to search...</p>
+                </div>
+            </div>
+            <div id="pagination" class="pagination"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3005';
+        let currentTab = 'patents';
+        let currentPage = 1;
+        const resultsPerPage = 20;
+
+        // Load initial statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${data.counts.patents.toLocaleString()}</div>
+                        <div class="stat-label">Total Patents</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.counts.drugs.toLocaleString()}</div>
+                        <div class="stat-label">Total Drugs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.counts.relationships.toLocaleString()}</div>
+                        <div class="stat-label">Relationships</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.dataSource.toUpperCase()}</div>
+                        <div class="stat-label">Data Source</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.search-form').forEach(f => f.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`${tab}-form`).classList.add('active');
+        }
+
+        async function searchPatents() {
+            const query = document.getElementById('patent-query').value;
+            const classification = document.getElementById('patent-classification').value;
+            const company = document.getElementById('patent-company').value;
+            const drug = document.getElementById('patent-drug').value;
+
+            const params = new URLSearchParams({
+                q: query,
+                classification: classification,
+                company: company,
+                drug: drug,
+                limit: resultsPerPage,
+                offset: (currentPage - 1) * resultsPerPage
+            });
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_BASE}/api/patents/search?${params}`);
+                const data = await response.json();
+                displayPatentResults(data);
+            } catch (error) {
+                showError('Failed to search patents');
+            }
+        }
+
+        async function searchDrugs() {
+            const query = document.getElementById('drug-query').value;
+            const phase = document.getElementById('drug-phase').value;
+            const company = document.getElementById('drug-company').value;
+            const indication = document.getElementById('drug-indication').value;
+
+            const params = new URLSearchParams({
+                q: query,
+                phase: phase,
+                company: company,
+                indication: indication,
+                limit: resultsPerPage,
+                offset: (currentPage - 1) * resultsPerPage
+            });
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_BASE}/api/drugs/search?${params}`);
+                const data = await response.json();
+                displayDrugResults(data);
+            } catch (error) {
+                showError('Failed to search drugs');
+            }
+        }
+
+        async function runAnalysis() {
+            const analysisType = document.getElementById('analysis-type').value;
+            let url = `${API_BASE}/api/analysis/${analysisType}`;
+
+            if (analysisType === 'patent-landscape') {
+                const year = document.getElementById('analysis-year').value;
+                if (year) url += `?year=${year}`;
+            } else if (analysisType === 'competitive') {
+                const company = prompt('Enter company name for analysis:');
+                if (!company) return;
+                url = `${API_BASE}/api/analysis/competitive/${encodeURIComponent(company)}`;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayAnalysisResults(data, analysisType);
+            } catch (error) {
+                showError('Failed to run analysis');
+            }
+        }
+
+        function displayPatentResults(data) {
+            const resultsDiv = document.getElementById('results');
+
+            if (data.results.length === 0) {
+                resultsDiv.innerHTML = '<p>No patents found</p>';
+                return;
+            }
+
+            let html = `<p>Found ${data.total} patents (showing ${data.results.length})</p>`;
+
+            data.results.forEach(patent => {
+                html += `
+                    <div class="result-item">
+                        <div class="result-title">${patent.title || patent.patent_number || 'Patent'}</div>
+                        <div class="result-meta">
+                            <span class="meta-item">📄 ${patent.patent_number || 'N/A'}</span>
+                            <span class="meta-item">📅 ${patent.application_date || 'N/A'}</span>
+                            <span class="meta-item">⏰ Expires: ${patent.earliest_expiry_date || 'N/A'}</span>
+                        </div>
+                        ${patent.drugs && patent.drugs.length > 0 ? `
+                            <div>
+                                ${patent.drugs.map(d => `<span class="tag">${d}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="result-abstract">${patent.abstract || patent.advantages || 'No description available'}</div>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+            displayPagination(data.total, data.limit, data.offset);
+        }
+
+        function displayDrugResults(data) {
+            const resultsDiv = document.getElementById('results');
+
+            if (data.results.length === 0) {
+                resultsDiv.innerHTML = '<p>No drugs found</p>';
+                return;
+            }
+
+            let html = `<p>Found ${data.total} drugs (showing ${data.results.length})</p>`;
+
+            data.results.forEach(drug => {
+                html += `
+                    <div class="result-item">
+                        <div class="result-title">${drug.name || 'Drug'}</div>
+                        <div class="result-meta">
+                            <span class="meta-item">💊 ID: ${drug.id || 'N/A'}</span>
+                            <span class="meta-item">📊 Phase: ${drug.highest_phase || 'Unknown'}</span>
+                            <span class="meta-item">🚀 Launched: ${drug.first_launched_date || 'Not launched'}</span>
+                        </div>
+                        ${drug.active_indications && drug.active_indications.length > 0 ? `
+                            <div>
+                                ${drug.active_indications.slice(0, 5).map(i => `<span class="tag">${i}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="result-abstract">${drug.summary || 'No description available'}</div>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+            displayPagination(data.total, data.limit, data.offset);
+        }
+
+        function displayAnalysisResults(data, type) {
+            const resultsDiv = document.getElementById('results');
+            let html = `<h3>Analysis Results: ${type.replace('-', ' ').toUpperCase()}</h3>`;
+
+            // Format analysis results based on type
+            html += '<pre style="background: #f5f5f5; padding: 20px; border-radius: 8px; overflow-x: auto;">';
+            html += JSON.stringify(data, null, 2);
+            html += '</pre>';
+
+            resultsDiv.innerHTML = html;
+            document.getElementById('pagination').innerHTML = '';
+        }
+
+        function displayPagination(total, limit, offset) {
+            const totalPages = Math.ceil(total / limit);
+            const currentPage = Math.floor(offset / limit) + 1;
+
+            let html = '';
+
+            // Previous button
+            html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">Previous</button>`;
+
+            // Page numbers
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            // Next button
+            html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Next</button>`;
+
+            document.getElementById('pagination').innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            if (currentTab === 'patents') {
+                searchPatents();
+            } else if (currentTab === 'drugs') {
+                searchDrugs();
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('results').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading...</p>
+                </div>
+            `;
+            document.getElementById('pagination').innerHTML = '';
+        }
+
+        function showError(message) {
+            document.getElementById('results').innerHTML = `
+                <div class="loading">
+                    <p style="color: red;">${message}</p>
+                </div>
+            `;
+        }
+
+        function updateAnalysisForm() {
+            const type = document.getElementById('analysis-type').value;
+            const paramsDiv = document.getElementById('analysis-params');
+
+            if (type === 'patent-landscape') {
+                paramsDiv.innerHTML = `
+                    <div class="form-group">
+                        <label>Year (optional)</label>
+                        <input type="text" id="analysis-year" placeholder="e.g., 2024">
+                    </div>
+                `;
+            } else if (type === 'drug-pipeline') {
+                paramsDiv.innerHTML = `
+                    <div class="filter-row">
+                        <div class="form-group">
+                            <label>Company (optional)</label>
+                            <input type="text" id="pipeline-company" placeholder="e.g., Pfizer">
+                        </div>
+                        <div class="form-group">
+                            <label>Indication (optional)</label>
+                            <input type="text" id="pipeline-indication" placeholder="e.g., Oncology">
+                        </div>
+                    </div>
+                `;
+            } else {
+                paramsDiv.innerHTML = '';
+            }
+        }
+
+        // Load stats on page load
+        loadStats();
+    </script>
+</body>
+</html>
