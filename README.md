@@ -33,20 +33,43 @@ Comprehensive patent and drug intelligence system integrating Cortellis and Goog
 
 ## Deployment
 
-### Railway
+### Railway (Recommended)
 
-1. Connect GitHub repository
-2. Set environment variables (if needed)
-3. Deploy automatically
+**Deploy from GitHub:**
+1. Go to [Railway](https://railway.app)
+2. Create new project from GitHub repo: `mahirkurt/medicines-patent-api`
+3. Railway will auto-detect Node.js and deploy
+4. Service will be available at Railway-provided URL
 
-### Local
+**Important Notes:**
+- Large data files (*.xlsx, processed_data/patents_processed.json) are excluded from git
+- Upload these files manually to Railway or regenerate using Python scripts
+- Server runs on port 3005 (Railway will auto-assign PORT env variable)
+
+### Local Development
 
 ```bash
+# Install dependencies
 npm install
+
+# Start server
 npm start
 ```
 
-Server runs on port 3005.
+Server runs on http://localhost:3005
+
+### Test the API
+
+```bash
+# Health check
+curl http://localhost:3005/health
+
+# Search patents
+curl "http://localhost:3005/api/patents/search?q=cancer&limit=5"
+
+# Search drugs
+curl "http://localhost:3005/api/drugs/search?q=aspirin"
+```
 
 ## Data Sources
 
